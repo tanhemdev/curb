@@ -1,58 +1,191 @@
-# Curb
+# 🪑 Curb
 
-> Free peer-to-peer marketplace for UC Berkeley students
-
-<p align="center">
-  <img src="https://img.shields.io/static/v1?style=for-the-badge&label=status&message=active&color=10b981" alt="Active" />
-  <img src="https://img.shields.io/static/v1?style=for-the-badge&label=type&message=marketplace&color=6366f1" alt="Marketplace" />
-  <img src="https://img.shields.io/static/v1?style=for-the-badge&label=stack&message=react%20%7C%20node%20%7C%20firebase&color=f59e0b" alt="React Node Firebase" />
-</p>
+**Perfectly good furniture shouldn't die at the dumpster.**
 
 ---
 
-<table>
-  <tr>
-    <td align="center"><b>.edu-only</b><br /><sub>authentication</sub></td>
-    <td align="center"><b>72hr</b><br /><sub>auto-expiring listings</sub></td>
-    <td align="center"><b>Pinterest-style</b><br /><sub>discovery feed</sub></td>
-    <td align="center"><b>$0</b><br /><sub>platform fees</sub></td>
-  </tr>
-</table>
+During Berkeley move-out last May, I watched couches, desks, mini-fridges, and lamps pile up on the curb  -  perfectly good stuff, headed straight to the landfill. Two months later at Target, I watched the exact same class of freshmen buy the exact same stuff brand new.
+
+And I couldn't help but wonder: **if this happens at Berkeley, what does this look like across all 4,000 colleges in the US?**
+
+So I looked it up. US colleges generate **230+ tons of move-out waste every May**. Nationally, 12.1 million tons of furniture hit the waste stream each year  -  and only **0.3%** gets recycled. That's the lowest recycling rate of any durable goods category. At some campuses, 600 mattresses get thrown out in a single move-out week. Ohio State alone produces 18,500 tons of campus waste per year. Back-to-college spending hit **$86.6 billion** last year, with **$12.2 billion on dorm furnishings** alone  -  most of which existed perfectly fine on someone else's curb three months earlier.
+
+It's not a lack of caring. It's a logistics problem. There's no easy way to hand stuff off when everyone's moving at the same time.
+
+Curb is a hyperlocal peer-to-peer marketplace that connects outgoing college students with incoming ones. List it, match it, hand it off  -  all within the 48-hour move-out window where this stuff actually changes hands.
 
 ---
 
-## Problem
+## The Cycle
 
-Berkeley students buy and sell textbooks, furniture, electronics, and dorm supplies every semester — but existing platforms (Facebook Marketplace, Craigslist) have no identity verification, stale listings, and zero campus trust infrastructure. Students deal with no-shows, scams, and listings from non-students.
+Every year, the same thing happens:
 
-## Solution
+```
+May:   Senior moves out -> perfectly good desk hits the curb -> landfill
+August: Freshman moves in -> buys the same desk at Target -> $89 gone
+```
 
-Curb is a campus-only marketplace where every user is verified through their **.edu email**. Listings auto-expire after 72 hours to keep inventory fresh. The interface uses a Pinterest-style visual feed for discovery instead of the text-heavy list format of older platforms.
+The numbers are wild:
+- The average college student generates **640 lbs of trash per year**
+- Back-to-college spending hit **$86.6B** last year, with **$12.2B on dorm furnishings** alone
+- Only **0.3%** of discarded furniture actually gets recycled
 
-**What I built:**
-
-- **Authentication layer** — .edu email verification ensures only current students can buy/sell
-- **Auto-expiring listings** — 72-hour TTL keeps the marketplace current, no stale posts
-- **Visual discovery feed** — Pinterest-style card layout with image-first browsing
-- **Trust system** — verified student identities replace anonymous marketplace interactions
-- **Zero fees** — no platform cut, built for students by students
-
-## Architecture
-
-| Layer | Technology |
-|---|---|
-| **Frontend** | React, responsive design, image-first card UI |
-| **Backend** | Node.js, RESTful API |
-| **Database** | Firebase / Firestore |
-| **Auth** | .edu email verification, session management |
-| **Storage** | Cloud image storage with compression |
-
-## Key Design Decisions
-
-- **72-hour expiry** — analyzed listing lifecycle data from campus buy/sell groups; most sales happen within 48 hours or never. Auto-expiry eliminates the "is this still available?" problem
-- **.edu gate** — campus-only trust is the core differentiator. No verification = no account
-- **Image-first feed** — students browse visually. Text-heavy listings from Craigslist-era platforms have lower engagement
+It's not a lack of caring  -  it's a logistics problem. There's no easy way to hand stuff off when everyone's moving at the same time.
 
 ---
 
-<sub>Built by <a href="https://github.com/tanhemdev">Tanya Hemdev</a> · UC Berkeley · Cognitive Science + Data Science</sub>
+## How It Works
+
+### 1. List It (30 seconds)
+Snap a photo, drop a pin, set your price (or free). That's it. No long descriptions, no shipping logistics. Your listing auto-expires in **72 hours** because this stuff moves fast or it doesn't move at all.
+
+### 2. Match
+Incoming students browse a Pinterest-style feed filtered to their campus. Geo-fenced to a 2-mile radius around campus so everything is walkable/bikeable.
+
+### 3. Hand Off
+In-app chat to coordinate pickup. Show up, grab your desk, done. No shipping, no middlemen, no platform fees.
+
+![Listing Flow](docs/screenshots/listing-flow.png)
+![Feed View](docs/screenshots/feed-view.png)
+![Chat Handoff](docs/screenshots/chat-handoff.png)
+
+---
+
+## Tech Stack
+
+| Layer | Tech | Why |
+|-------|------|-----|
+| Frontend | React + Tailwind CSS | Fast iteration, mobile-first utility classes |
+| Backend | Node.js + Express | Lightweight API layer |
+| Database | Cloud Firestore | Real-time sync, offline support, scales without ops |
+| Auth | Firebase Auth (.edu) | Email link auth with .edu domain validation |
+| Storage | Firebase Storage | Image uploads with automatic compression |
+| Hosting | Firebase Hosting | PWA with service worker, instant deploys |
+| Maps | Google Maps API | Geo-fencing, pin drops, campus boundaries |
+
+Mobile-first PWA  -  no app store friction, works on any phone browser.
+
+---
+
+## Project Structure
+
+```
+curb/
+├── client/
+│   ├── public/
+│   │   ├── index.html
+│   │   ├── manifest.json
+│   │   └── service-worker.js
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── auth/
+│   │   │   │   ├── EduEmailGate.jsx
+│   │   │   │   └── OnboardingFlow.jsx
+│   │   │   ├── feed/
+│   │   │   │   ├── ListingCard.jsx
+│   │   │   │   ├── MasonryFeed.jsx
+│   │   │   │   └── CategoryFilter.jsx
+│   │   │   ├── listing/
+│   │   │   │   ├── CreateListing.jsx
+│   │   │   │   ├── PhotoUpload.jsx
+│   │   │   │   ├── PinDrop.jsx
+│   │   │   │   └── ExpiryBadge.jsx
+│   │   │   ├── chat/
+│   │   │   │   ├── ChatThread.jsx
+│   │   │   │   └── HandoffConfirm.jsx
+│   │   │   └── common/
+│   │   │       ├── Navbar.jsx
+│   │   │       ├── CampusMap.jsx
+│   │   │       └── LoadingSkeleton.jsx
+│   │   ├── hooks/
+│   │   │   ├── useAuth.js
+│   │   │   ├── useListings.js
+│   │   │   ├── useGeofence.js
+│   │   │   └── useChat.js
+│   │   ├── utils/
+│   │   │   ├── imageCompression.js
+│   │   │   ├── geofence.js
+│   │   │   └── expiry.js
+│   │   ├── App.jsx
+│   │   └── index.js
+│   ├── tailwind.config.js
+│   └── package.json
+├── server/
+│   ├── functions/
+│   │   ├── auth/
+│   │   │   └── validateEdu.js
+│   │   ├── listings/
+│   │   │   ├── autoExpire.js
+│   │   │   └── matchNotify.js
+│   │   ├── images/
+│   │   │   └── optimize.js
+│   │   └── index.js
+│   └── package.json
+├── firestore.rules
+├── firebase.json
+├── docs/
+│   ├── PRD.md
+│   ├── USER_RESEARCH.md
+│   ├── ARCHITECTURE.md
+│   ├── SPRINT_LOG.md
+│   └── METRICS.md
+└── README.md
+```
+
+---
+
+## Quick Start
+
+```bash
+# Clone
+git clone https://github.com/tanhemdev/curb.git
+cd curb
+
+# Install dependencies
+cd client && npm install
+cd ../server && npm install
+
+# Set up Firebase
+cp .env.example .env
+# Add your Firebase config keys
+
+# Run locally
+npm run dev
+```
+
+Requires Node 18+, a Firebase project, and a Google Maps API key.
+
+---
+
+## Pilot Results
+
+First pilot at UC Berkeley, May 2024:
+
+- **800+ items** diverted from landfills
+- **~2,400 lbs** of waste prevented
+- **4.2 min** average time-to-match
+- **73%** listing conversion rate
+
+Full breakdown -> [METRICS.md](docs/METRICS.md)
+
+---
+
+## Docs
+
+| Doc | What's in it |
+|-----|-------------|
+| [PRD.md](docs/PRD.md) | Product requirements, personas, market sizing |
+| [USER_RESEARCH.md](docs/USER_RESEARCH.md) | Interviews, survey data, key insights |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, Firebase schema, geo-fencing |
+| [SPRINT_LOG.md](docs/SPRINT_LOG.md) | 4-week build log from idea to pilot |
+| [METRICS.md](docs/METRICS.md) | Pilot results and impact numbers |
+
+---
+
+## Why This Matters
+
+800 items is a start. There are **20 million college students** in the US, and this cycle repeats at every single campus, every single year. If we can make the handoff as easy as the throwaway, we can put a real dent in the 9.8 million tons of furniture that hits landfills annually.
+
+---
+
+Built by [Tanya Hemdev](https://github.com/tanhemdev) · UC Berkeley · 2024
