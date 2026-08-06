@@ -8,7 +8,7 @@ During Berkeley move-out last May, I watched couches, desks, mini-fridges, and l
 
 And I couldn't help but wonder: **if this happens at Berkeley, what does this look like across all 4,000 colleges in the US?**
 
-So I looked it up. US colleges generate **230+ tons of move-out waste every May**. Nationally, 12.1 million tons of furniture hit the waste stream each year  -  and only **0.3%** gets recycled. That's the lowest recycling rate of any durable goods category. At some campuses, 600 mattresses get thrown out in a single move-out week. Ohio State alone produces 18,500 tons of campus waste per year. Back-to-college spending hit **$86.6 billion** last year, with **$12.2 billion on dorm furnishings** alone  -  most of which existed perfectly fine on someone else's curb three months earlier.
+So I looked it up. US colleges generate **230+ tons of move-out waste every May**. Nationally, 12.1 million tons of furniture hit the waste stream each year, and only **0.3%** gets recycled. That's the lowest recycling rate of any durable goods category. At some campuses, 600 mattresses get thrown out in a single move-out week. Ohio State alone produces 18,500 tons of campus waste per year. Back-to-college spending hit **$86.6 billion** last year, with **$12.2 billion on dorm furnishings** alone  -  most of which existed perfectly fine on someone else's curb three months earlier.
 
 It's not a lack of caring. It's a logistics problem. There's no easy way to hand stuff off when everyone's moving at the same time.
 
@@ -38,6 +38,9 @@ It's not a lack of caring  -  it's a logistics problem. There's no easy way to h
 
 ### 1. List It (30 seconds)
 Snap a photo, drop a pin, set your price (or free). That's it. No long descriptions, no shipping logistics. Your listing auto-expires in **72 hours** because this stuff moves fast or it doesn't move at all.
+<img width="510" height="679" alt="Screenshot 2026-08-06 at 6 39 34 PM" src="https://github.com/user-attachments/assets/50b77606-52c7-4aec-98b7-5b5045910ba0" />
+<img width="672" height="345" alt="Screenshot 2026-08-06 at 6 39 55 PM" src="https://github.com/user-attachments/assets/2425f6b3-0ce1-47a6-961d-03afe3697983" />
+
 
 ### 2. Match
 Incoming students browse a Pinterest-style feed filtered to their campus. Geo-fenced to a 2-mile radius around campus so everything is walkable/bikeable.
