@@ -45,10 +45,6 @@ Incoming students browse a Pinterest-style feed filtered to their campus. Geo-fe
 ### 3. Hand Off
 In-app chat to coordinate pickup. Show up, grab your desk, done. No shipping, no middlemen, no platform fees.
 
-![Listing Flow](docs/screenshots/listing-flow.png)
-![Feed View](docs/screenshots/feed-view.png)
-![Chat Handoff](docs/screenshots/chat-handoff.png)
-
 ---
 
 ## Tech Stack
