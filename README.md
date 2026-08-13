@@ -1,4 +1,4 @@
-# 🪑 Curb
+# Curb
 
 **Perfectly good furniture shouldn't die at the dumpster.**
 
