@@ -2,189 +2,94 @@
 
 **Perfectly good furniture shouldn't die at the dumpster.**
 
----
+A peer-to-peer marketplace for students moving out and moving in: list it, match it, hand it off a few blocks away. Every listing expires after 72 hours, because move-out moves fast.
 
-During Berkeley move-out last May, I watched couches, desks, mini-fridges, and lamps pile up on the curb  -  perfectly good stuff, headed straight to the landfill. Two months later at Target, I watched the exact same class of freshmen buy the exact same stuff brand new.
+**[Try the live demo](https://tanhemdev.github.io/curb/)** (demo mode: sample listings, everything you do stays in your browser)
 
-And I couldn't help but wonder: **if this happens at Berkeley, what does this look like across all 4,000 colleges in the US?**
+[![CI](https://github.com/tanhemdev/curb/actions/workflows/ci.yml/badge.svg)](https://github.com/tanhemdev/curb/actions/workflows/ci.yml)
+[![Deploy](https://github.com/tanhemdev/curb/actions/workflows/pages.yml/badge.svg)](https://github.com/tanhemdev/curb/actions/workflows/pages.yml)
 
-So I looked it up. US colleges generate **230+ tons of move-out waste every May**. Nationally, 12.1 million tons of furniture hit the waste stream each year, and only **0.3%** gets recycled. That's the lowest recycling rate of any durable goods category. At some campuses, 600 mattresses get thrown out in a single move-out week. Ohio State alone produces 18,500 tons of campus waste per year. Back-to-college spending hit **$86.6 billion** last year, with **$12.2 billion on dorm furnishings** alone  -  most of which existed perfectly fine on someone else's curb three months earlier.
+<p align="center"><img src="docs/screenshots/feed.png" width="760" alt="Curb's feed: a masonry grid of listings like a desk lamp, a road bike and an office chair, each with a price tag and time left" /></p>
 
-It's not a lack of caring. It's a logistics problem. There's no easy way to hand stuff off when everyone's moving at the same time.
+## Why I built this
 
-Curb is a hyperlocal peer-to-peer marketplace that connects outgoing college students with incoming ones. List it, match it, hand it off  -  all within the 48-hour move-out window where this stuff actually changes hands.
+During Berkeley move-out, I watched couches, desks, mini-fridges and lamps pile up on the curb: perfectly good stuff, headed straight to the landfill. Two months later at Target, I watched the next class of freshmen buy the exact same stuff brand new.
 
----
+It isn't a lack of caring. It's a logistics problem: there's no easy way to hand things off when everyone is moving at the same time. Nationally, 12.1 million tons of furniture and furnishings were thrown out in 2018, about 80% of it landfilled and roughly 0.3% recycled ([EPA](https://www.epa.gov/facts-and-figures-about-materials-waste-and-recycling/durable-goods-product-specific-data)).
 
-## The Cycle
+In an earlier move-out pilot at Berkeley, students listed **127 items**. This repository is the product rebuilt as a working app.
 
-Every year, the same thing happens:
+## How it works
 
-```
-May:   Senior moves out -> perfectly good desk hits the curb -> landfill
-August: Freshman moves in -> buys the same desk at Target -> $89 gone
-```
+1. **List it (about 30 seconds).** Snap a photo (it's shrunk in your browser before upload), pick a pickup spot, set a price or mark it free.
+2. **Match.** Students browse a Pinterest-style feed filtered by category, price or search. Everything is within 2 miles of campus.
+3. **Hand off.** Tap "I want this" to open a chat with the seller, meet at the pickup spot, and the seller marks it handed off.
 
-The numbers are wild:
-- The average college student generates **640 lbs of trash per year**
-- Back-to-college spending hit **$86.6B** last year, with **$12.2B on dorm furnishings** alone
-- Only **0.3%** of discarded furniture actually gets recycled
+Listings disappear after 72 hours, and sellers can relist anything that didn't go.
 
-It's not a lack of caring  -  it's a logistics problem. There's no easy way to hand stuff off when everyone's moving at the same time.
+## What's in the code
 
----
+| Feature | Where |
+|---|---|
+| .edu-only sign-in (magic link) | `lib/edu.js`, `components/auth/SignIn.jsx`, enforced again in the database: `supabase/migrations/0002_policies.sql` and the auth hook in `0003_edu_signup_hook.sql` |
+| 72-hour expiry and relisting | `lib/expiry.js`, the `expires_at` column, and an RLS policy that hides expired rows |
+| Masonry feed with filters and search | `components/feed/` |
+| Listing with in-browser photo compression | `components/listing/CreateListing.jsx`, `lib/imageCompression.js` |
+| Campus geofence (2 miles of UC Berkeley) | `lib/geo.js`, `lib/campus.js` |
+| Buyer-seller chat, live via Supabase Realtime | `components/chat/Messages.jsx`, `lib/data/supabase.js` |
+| "Mark handed off" and My listings | `components/listing/ListingDetail.jsx`, `components/me/MyListings.jsx` |
+| Demo mode (the whole marketplace in localStorage) | `lib/data/demo.js`, `lib/data/seed.js` |
 
-## How It Works
-
-### 1. List It (30 seconds)
-Snap a photo, drop a pin, set your price (or free). That's it. No long descriptions, no shipping logistics. Your listing auto-expires in **72 hours** because this stuff moves fast or it doesn't move at all.
-<img width="510" height="679" alt="Screenshot 2026-08-06 at 6 39 34 PM" src="https://github.com/user-attachments/assets/50b77606-52c7-4aec-98b7-5b5045910ba0" />
-<img width="672" height="345" alt="Screenshot 2026-08-06 at 6 39 55 PM" src="https://github.com/user-attachments/assets/2425f6b3-0ce1-47a6-961d-03afe3697983" />
-
-
-### 2. Match
-Incoming students browse a Pinterest-style feed filtered to their campus. Geo-fenced to a 2-mile radius around campus so everything is walkable/bikeable.
-
-### 3. Hand Off
-In-app chat to coordinate pickup. Show up, grab your desk, done. No shipping, no middlemen, no platform fees.
-
----
-
-## Tech Stack
+## Stack
 
 | Layer | Tech | Why |
-|-------|------|-----|
-| Frontend | React + Tailwind CSS | Fast iteration, mobile-first utility classes |
-| Backend | Node.js + Express | Lightweight API layer |
-| Database | Cloud Firestore | Real-time sync, offline support, scales without ops |
-| Auth | Firebase Auth (.edu) | Email link auth with .edu domain validation |
-| Storage | Firebase Storage | Image uploads with automatic compression |
-| Hosting | Firebase Hosting | PWA with service worker, instant deploys |
-| Maps | Google Maps API | Geo-fencing, pin drops, campus boundaries |
-
-Mobile-first PWA  -  no app store friction, works on any phone browser.
-
----
-
-## Project Structure
+|---|---|---|
+| App | Next.js 14 (App Router), React | Static export: the app is plain HTML and JS that can be hosted anywhere |
+| Database | Supabase Postgres | Relational data (listings, threads, messages) with row-level security |
+| Auth | Supabase Auth, email magic links | No passwords to forget during a stressful move; .edu enforced by a before-user-created hook |
+| Storage | Supabase Storage | Listing photos, each user writes only to their own folder |
+| Realtime | Supabase Realtime | New chat messages appear without refreshing |
+| Hosting | GitHub Pages (demo), any static host (live) | |
 
 ```
-curb/
-├── client/
-│   ├── public/
-│   │   ├── index.html
-│   │   ├── manifest.json
-│   │   └── service-worker.js
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── auth/
-│   │   │   │   ├── EduEmailGate.jsx
-│   │   │   │   └── OnboardingFlow.jsx
-│   │   │   ├── feed/
-│   │   │   │   ├── ListingCard.jsx
-│   │   │   │   ├── MasonryFeed.jsx
-│   │   │   │   └── CategoryFilter.jsx
-│   │   │   ├── listing/
-│   │   │   │   ├── CreateListing.jsx
-│   │   │   │   ├── PhotoUpload.jsx
-│   │   │   │   ├── PinDrop.jsx
-│   │   │   │   └── ExpiryBadge.jsx
-│   │   │   ├── chat/
-│   │   │   │   ├── ChatThread.jsx
-│   │   │   │   └── HandoffConfirm.jsx
-│   │   │   └── common/
-│   │   │       ├── Navbar.jsx
-│   │   │       ├── CampusMap.jsx
-│   │   │       └── LoadingSkeleton.jsx
-│   │   ├── hooks/
-│   │   │   ├── useAuth.js
-│   │   │   ├── useListings.js
-│   │   │   ├── useGeofence.js
-│   │   │   └── useChat.js
-│   │   ├── utils/
-│   │   │   ├── imageCompression.js
-│   │   │   ├── geofence.js
-│   │   │   └── expiry.js
-│   │   ├── App.jsx
-│   │   └── index.js
-│   ├── tailwind.config.js
-│   └── package.json
-├── server/
-│   ├── functions/
-│   │   ├── auth/
-│   │   │   └── validateEdu.js
-│   │   ├── listings/
-│   │   │   ├── autoExpire.js
-│   │   │   └── matchNotify.js
-│   │   ├── images/
-│   │   │   └── optimize.js
-│   │   └── index.js
-│   └── package.json
-├── firestore.rules
-├── firebase.json
-├── docs/
-│   ├── PRD.md
-│   ├── USER_RESEARCH.md
-│   ├── ARCHITECTURE.md
-│   ├── SPRINT_LOG.md
-│   └── METRICS.md
-└── README.md
+browser (Next.js static app)
+   │  lib/data/index.js picks a backend
+   ├── demo:  lib/data/demo.js  ── localStorage (GitHub Pages demo)
+   └── live:  lib/data/supabase.js ── Supabase: Postgres + RLS, Auth, Storage, Realtime
 ```
 
----
+Security lives in the database. Row-level-security policies decide who can read and write each row, so a modified client still can't read someone else's messages or edit someone else's listing. Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Quick Start
+## Run it
 
 ```bash
-# Clone
-git clone https://github.com/tanhemdev/curb.git
-cd curb
-
-# Install dependencies
-cd client && npm install
-cd ../server && npm install
-
-# Set up Firebase
-cp .env.example .env
-# Add your Firebase config keys
-
-# Run locally
-npm run dev
+npm install
+npm run dev          # demo mode at http://localhost:3000
+npm test             # unit tests
+npm run build        # static export to out/
 ```
 
-Requires Node 18+, a Firebase project, and a Google Maps API key.
+**Go live with Supabase:**
 
----
+1. Create a Supabase project and run the three files in `supabase/migrations/` (SQL editor or `supabase db push`).
+2. In Authentication → Hooks, turn on "Before User Created" with `public.hook_require_edu_email`.
+3. Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the anon key is meant to be public; RLS is what protects the data).
+4. `npm run build` and host `out/` anywhere.
 
-## Pilot Results
+## Tests
 
-First pilot at UC Berkeley, May 2024:
+`npm test` runs 11 tests on the parts that carry the product's promises: the .edu check (including look-alikes like `edu.com`), the exact 72-hour expiry, the geofence, prices, photo sizing, and the demo marketplace (feed filters, sign-in gate, expiry and relisting, handoffs, one thread per buyer, and that nobody can read someone else's thread). CI runs the tests and a full production build on every push.
 
-- **800+ items** diverted from landfills
-- **~2,400 lbs** of waste prevented
-- **4.2 min** average time-to-match
-- **73%** listing conversion rate
+## Status
 
-Full breakdown -> [METRICS.md](docs/METRICS.md)
-
----
+- v1.0 (October 2026): working app, live demo, tested logic, database schema with security policies.
+- The live Supabase backend is written but needs a project and keys to run; the public demo runs in demo mode.
+- Next: push notifications when someone wants your item, and a second campus.
 
 ## Docs
 
-| Doc | What's in it |
-|-----|-------------|
-| [PRD.md](docs/PRD.md) | Product requirements, personas, market sizing |
-| [USER_RESEARCH.md](docs/USER_RESEARCH.md) | Interviews, survey data, key insights |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, Firebase schema, geo-fencing |
-| [SPRINT_LOG.md](docs/SPRINT_LOG.md) | 4-week build log from idea to pilot |
-| [METRICS.md](docs/METRICS.md) | Pilot results and impact numbers |
+[PRD](docs/PRD.md) · [User research](docs/USER_RESEARCH.md) · [Architecture](docs/ARCHITECTURE.md) · [Build log](docs/SPRINT_LOG.md) · [Metrics](docs/METRICS.md)
 
 ---
 
-## Why This Matters
-
-800 items is a start. There are **20 million college students** in the US, and this cycle repeats at every single campus, every single year. If we can make the handoff as easy as the throwaway, we can put a real dent in the 9.8 million tons of furniture that hits landfills annually.
-
----
-
-Built by [Tanya Hemdev](https://github.com/tanhemdev) · UC Berkeley · 2024
+Built by [Tanya Hemdev](https://tanyahemdev.com), UC Berkeley.
