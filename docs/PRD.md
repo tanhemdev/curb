@@ -1,92 +1,65 @@
-# Curb  -  Product Requirements Document
+# Curb: Product Requirements
 
 **Author:** Tanya Hemdev
-**Last updated:** April 2024
-**Status:** Pilot complete
+**Status:** v1 (October 2026): working app with a live demo; the live backend is written and needs a Supabase project to run.
 
----
+## Problem
 
-## problem statement
+Every move-out, students put perfectly good furniture on the curb. A few months later, the next class buys the same things new. Nationally, 12.1 million tons of furniture and furnishings were thrown out in 2018, about 80% of it landfilled and roughly 0.3% recycled ([EPA](https://www.epa.gov/facts-and-figures-about-materials-waste-and-recycling/durable-goods-product-specific-data)).
 
-every May, college students throw out perfectly good furniture during move-out. every August, incoming students buy the same stuff brand new. US colleges generate 230+ tons of move-out waste annually. 12.1 million tons of furniture hit the waste stream each year with only 0.3% recycled.
+It isn't a lack of caring. It's logistics: everyone is moving at the same time, general marketplaces aren't built for a few frantic days, and nobody wants to coordinate with strangers mid-move.
 
-there's no easy way to hand stuff off when everyone's moving at the same time. existing solutions (Facebook Marketplace, Craigslist) aren't built for the 48-hour move-out window where this stuff actually changes hands.
+## Users
 
----
+| | Who | Needs |
+|---|---|---|
+| Primary | Students moving out | Get rid of things in seconds, hand off nearby, no strangers |
+| Primary | Students moving in | Cheap or free basics close to campus, from people they can trust |
+| Secondary | Campus sustainability and housing staff | Less move-out waste without running it themselves |
 
-## target users
+### Personas
 
-### primary
-- **outgoing students** (juniors/seniors moving out)  -  want to get rid of stuff fast, don't want to deal with shipping or complex listings
-- **incoming students** (freshmen/transfers moving in)  -  want affordable furniture, prefer local pickup
+- **The graduating senior.** Moving to a first job, with a desk, a mini-fridge and a futon that won't fit. Would rather give them away than haul them to a dumpster. Needs: list in 30 seconds, hand off in person, done.
+- **The incoming freshman.** Arriving from out of town with no local network. Needs: browse what's near campus, message the seller, pick it up.
 
-### secondary
-- **campus sustainability offices**  -  want to reduce move-out waste metrics
-- **student housing coordinators**  -  want cleaner move-out process
+## v1 scope
 
----
+| Priority | Requirement | Status |
+|---|---|---|
+| P0 | Students only: sign in with a .edu email (magic link, no password) | Built, enforced in the app and by a database hook |
+| P0 | List in about 30 seconds: photo, title, price or free, pickup spot | Built; photos shrink in the browser before upload |
+| P0 | Listings expire after 72 hours; relist anything that didn't go | Built, enforced by the database too |
+| P0 | Browse a feed with category, free-only and search filters | Built (Pinterest-style masonry) |
+| P0 | Everything within 2 miles of campus | Built: campus pickup spots, plus an optional location check |
+| P0 | Chat with the seller, one conversation per buyer per listing | Built, live updates via Supabase Realtime |
+| P0 | Mark handed off; My listings with status | Built |
+| P1 | A demo anyone can try without an account | Built (demo mode in the browser) |
+| P1 | Installable on a phone home screen | Manifest and icon (PWA basics) |
+| P2 | Push notification when someone wants your item | Next |
+| P2 | A second campus | Next (campus config is one file) |
 
-## user personas
+### Non-goals
 
-### Sarah, 21  -  "The Graduating Senior"
-Moving to SF for her first job. Has a desk, mini-fridge, and futon she can't take. Doesn't want to deal with Craigslist weirdos. Would rather give it away than carry it to the dumpster.
+Payments in the app, shipping, and anything off campus.
 
-**needs:** list it in 30 seconds, hand it off in person, done.
+## Success metrics
 
-### Marcus, 18  -  "The Incoming Freshman"
-Moving from LA to Berkeley. Parents don't want to buy a bunch of furniture that'll get trashed in 4 years. Would love a desk for $20 instead of $89 at Target.
+The first move-out pilot at Berkeley had **127 items listed**. That is the only measured number so far. For the next move-out on this app (targets, not results):
 
-**needs:** browse what's available near campus, message seller, pick it up.
+| Metric | Why | Target |
+|---|---|---|
+| Items listed | Supply | More than the 127 in the first pilot |
+| Share of listings handed off | The real outcome: things that didn't go to the curb | 50%+ |
+| Median time from listing to first message | Is demand there in time? | Under 1 hour |
+| Listings relisted after expiring | Is 72 hours the right window? | Watch |
+| Reports of no-shows | Trust between students | Under 1 in 10 handoffs |
 
----
+## Risks
 
-## success metrics
-
-| metric | target | actual (pilot) |
-|--------|--------|----------------|
-| items listed | 500+ | **1,247** |
-| items diverted from landfill | 400+ | **800+** |
-| listing conversion rate | 50% | **73%** |
-| average time-to-match | <10 min | **4.2 min** |
-| waste prevented (lbs) | 1,500+ | **~2,400** |
-
----
-
-## feature requirements
-
-### P0  -  must ship
-
-| feature | description | status |
-|---------|-------------|--------|
-| 30-second listing | photo + pin + price, auto-expires in 72h | shipped |
-| campus geo-fence | 2-mile radius around campus, .edu email required | shipped |
-| Pinterest-style feed | masonry layout filtered by category | shipped |
-| in-app chat | coordinate pickup without sharing phone numbers | shipped |
-| .edu auth | email link auth with .edu domain validation | shipped |
-
-### P1  -  next
-
-| feature | description | status |
-|---------|-------------|--------|
-| multi-campus | expand beyond Berkeley | spec'd |
-| price suggestions | ML-based pricing from photo | researching |
-| pickup scheduling | calendar integration for handoff coordination | spec'd |
-
----
-
-## market sizing
-
-- **20 million** college students in the US
-- **$86.6 billion** back-to-college spending (2023)
-- **$12.2 billion** on dorm furnishings alone
-- average student generates **640 lbs** of waste per year
-- **9.8 million tons** of furniture hits US landfills annually
-
----
-
-## out of scope
-
-- shipping/delivery (hyperlocal only  -  walkable/bikeable)
-- payment processing (cash/Venmo between users)
-- commercial sellers (students only, .edu enforced)
-- non-furniture items (keeping scope tight for pilot)
+| Risk | Mitigation |
+|---|---|
+| No-shows at pickup | Chat stays attached to the listing; next: reminders before the handoff |
+| Supply arrives after demand peaks | Open listings a few days before leases end |
+| Non-students | .edu only, checked in the app and again in the database |
+| Someone reads another person's messages | Row-level security: only the buyer and seller can read a thread |
+| Stale listings | 72-hour expiry, hidden by the database once expired |
