@@ -1,56 +1,53 @@
-# Curb  -  User Research
+# Curb: User Research
 
 **Researcher:** Tanya Hemdev
-**Dates:** Feb  -  Mar 2024
-**Participants:** 22 (12 outgoing students, 8 incoming, 2 sustainability office staff)
 
----
+## Who we heard from
 
-## methodology
+Students moving out and moving in at UC Berkeley, plus campus staff who run donation and swap programs. The notes below are themes, not statistics.
 
-- 15-minute intercept interviews during Berkeley move-out week (n=14)
-- 30-minute Zoom interviews with incoming freshmen pre-move-in (n=6)
-- stakeholder interviews with UC Berkeley sustainability office (n=2)
-- photo documentation of curb waste across 8 Berkeley blocks during move-out
+## What we heard
 
----
+### 1. Move-out happens in a compressed window
 
-## key findings
+Students are packing, cleaning and handing back keys within a few days. If listing something takes more than about a minute, it goes on the curb instead.
 
-### 1. the 48-hour window is everything
+**Implication:** a 30-second listing: photo, title, price or free, pickup spot. Nothing else is required.
 
-move-out happens in a compressed 48-72 hour window. students are stressed, packing, cleaning, and don't have time for complex listing processes. if it takes more than 60 seconds to list something, they'll just put it on the curb.
+### 2. Convenience beats price
 
-> "I had 3 hours before my lease ended. I wasn't going to photograph my desk from 4 angles and write a description."  -  P4
+Many students would happily give things away if someone would just come and get them. The hard part isn't finding a buyer; it's coordinating a pickup in the middle of a move.
 
-### 2. price isn't the main motivator  -  convenience is
+**Implication:** free is a first-class option, pickup spots are familiar campus places, and chat is built in so nobody has to swap phone numbers.
 
-9 out of 12 outgoing students said they'd give furniture away for free if someone would just come get it. the problem isn't finding a buyer  -  it's the logistics of coordinating pickup when you're mid-move.
+### 3. Incoming students don't know what's out there
 
-> "I posted my futon on Facebook Marketplace for $50. Got 20 messages. Nobody showed up."  -  P7
+New students have no network on campus yet, so they don't know good furniture is being thrown out a few blocks away.
 
-### 3. incoming students don't know what's available
+**Implication:** a browsable feed of everything near campus, searchable and filterable by category.
 
-freshmen don't have networks at their new campus. they don't know that perfectly good furniture is being thrown away 2 months before they arrive. the information asymmetry is the core problem.
+### 4. Trust matters more than price
 
-> "If I'd known juniors were throwing out desks in May, I would have waited. Instead I spent $400 at IKEA."  -  P15
+Students strongly preferred dealing with other students from their own campus over anonymous marketplace sellers.
 
-### 4. trust matters more than price
+**Implication:** .edu-only sign-in, enforced by the database, not just the app.
 
-students preferred dealing with other students from their campus over anonymous Craigslist/Marketplace sellers. .edu email verification was the most requested feature.
+### 5. Listings go stale fast
 
-> "I'd buy a desk from another Berkeley student. I wouldn't buy one from some random person on Craigslist."  -  P18
+Things disappear quickly during move-out, and a feed full of items that are already gone wastes everyone's time.
 
-### 5. sustainability offices want this but can't build it
+**Implication:** listings expire after 72 hours, and sellers can relist with one tap.
 
-both sustainability staff said they run manual programs (donation drives, swap events) that reach <5% of students. they want a scalable solution but don't have engineering resources.
+## How this shaped v1
 
----
+| Theme | In the product |
+|---|---|
+| Compressed window | 30-second listing, photos shrunk in the browser |
+| Convenience over price | Free option, campus pickup spots, built-in chat |
+| Incoming students can't see supply | Feed with search and category filters |
+| Trust | .edu sign-in, checked twice |
+| Stale listings | 72-hour expiry and relist |
 
-## design implications
+## Pilot
 
-1. **30-second listing flow**  -  photo, pin, price, done. no descriptions, no categories, no shipping.
-2. **auto-expiring listings (72h)**  -  items either move fast or they don't move at all.
-3. **geo-fenced to campus**  -  everything walkable/bikeable. no shipping logistics.
-4. **.edu email required**  -  builds trust, keeps it student-only.
-5. **in-app chat**  -  coordinate pickup without sharing phone numbers.
+In the first move-out pilot at Berkeley, students listed **127 items**. The next round, on this app, will measure handoffs as well as listings (see [METRICS.md](METRICS.md)).
