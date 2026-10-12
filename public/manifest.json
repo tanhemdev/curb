@@ -1,0 +1,10 @@
+{
+  "name": "Curb",
+  "short_name": "Curb",
+  "description": "Move-out stuff, a few blocks away.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f5f5f0",
+  "theme_color": "#e60023",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
