@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCurb } from './Providers.jsx';
 import { firstName } from '../lib/format.js';
+import Logo from './Logo.jsx';
 
 const LINKS = [
   { href: '/', label: 'Browse' },
@@ -23,7 +24,7 @@ export default function Navbar() {
     <header className="topbar">
       <div className="topbar-inner">
         <Link href="/" className="brand" aria-label="Curb home">
-          <span className="logo" aria-hidden="true">c</span>
+          <Logo size={38} />
           <span className="brand-name">curb</span>
         </Link>
         <nav className="nav" aria-label="Main">

@@ -9,6 +9,8 @@ import { CAMPUS, CATEGORIES, PICKUP_SPOTS } from '../../lib/campus.js';
 import { parsePrice } from '../../lib/format.js';
 import { withinCampus, milesBetween } from '../../lib/geo.js';
 import { LISTING_TTL_HOURS } from '../../lib/expiry.js';
+import { parsePaymentLink, PAYMENT_HELP } from '../../lib/payments.js';
+import { MAX_PRICE_CENTS } from '../../lib/format.js';
 
 export default function CreateListing() {
   const { store, user, ready } = useCurb();
@@ -19,7 +21,8 @@ export default function CreateListing() {
   const [price, setPrice] = useState('');
   const [spot, setSpot] = useState(PICKUP_SPOTS[0].name);
   const [description, setDescription] = useState('');
-  const [photo, setPhoto] = useState(null);
+  const [photos, setPhotos] = useState([]);
+  const [payLink, setPayLink] = useState('');
   const [geo, setGeo] = useState(null);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -60,11 +63,15 @@ export default function CreateListing() {
     setError('');
     const cents = free ? 0 : parsePrice(price);
     if (!title.trim()) return setError('Give your listing a title.');
-    if (cents === null) return setError('Enter a price like 20 or 12.50 (up to $500), or mark it free.');
+    if (cents === null) return setError(`Enter a price like 20 or 12.50 (up to $${MAX_PRICE_CENTS / 100}), or mark it free.`);
+    const link = cents ? parsePaymentLink(payLink) : '';
+    if (link === null) return setError('That payment link isn\'t a Stripe link. It should start with buy.stripe.com/.');
     setSaving(true);
     try {
-      const photo_url = photo ? await store.uploadPhoto(photo) : null;
-      const listing = await store.createListing({ title, description, category, price_cents: cents, pickup_spot: spot, photo_url });
+      const urls = [];
+      for (const p of photos) urls.push(await store.uploadPhoto(p));
+      const [photo_url = null, ...rest] = urls;
+      const listing = await store.createListing({ title, description, category, price_cents: cents, pickup_spot: spot, photo_url, photos: rest, payment_link: link });
       router.push(`/listing?id=${encodeURIComponent(listing.id)}&posted=1`);
     } catch (err) {
       setError(err.message);
@@ -77,7 +84,7 @@ export default function CreateListing() {
       <h1>Post an item</h1>
       <p className="muted">About 30 seconds. It stays up for {LISTING_TTL_HOURS} hours, and you can relist anything that doesn't go.</p>
       <form className="form" onSubmit={submit}>
-        <PhotoUpload value={photo} onChange={setPhoto} />
+        <PhotoUpload value={photos} onChange={setPhotos} />
         <label>
           What is it?
           <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80} placeholder="White desk, 47 inch" required />
@@ -103,6 +110,15 @@ export default function CreateListing() {
             </label>
           )}
         </fieldset>
+        {!free && (
+          <label>
+            Stripe payment link (optional)
+            <input value={payLink} onChange={(e) => setPayLink(e.target.value)} placeholder="buy.stripe.com/…" inputMode="url" autoComplete="off" />
+            <small className="hint">
+              {PAYMENT_HELP} Make one for free at dashboard.stripe.com → Payment Links. Leave it empty to take payment at pickup.
+            </small>
+          </label>
+        )}
         <label>
           Pickup spot
           <select value={spot} onChange={(e) => setSpot(e.target.value)}>

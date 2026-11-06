@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useCurb } from '../Providers.jsx';
 import { formatPrice } from '../../lib/format.js';
 import { isLive, timeLeftLabel } from '../../lib/expiry.js';
+import { PAYMENT_HELP } from '../../lib/payments.js';
 
 function statusOf(l, now) {
   if (l.status === 'handed_off') return { text: 'Handed off', cls: 'ok' };
@@ -17,6 +18,8 @@ export default function MyListings() {
   const { store, user, ready } = useCurb();
   const [rows, setRows] = useState(null);
   const [error, setError] = useState('');
+  const [editing, setEditing] = useState(null);
+  const [link, setLink] = useState('');
 
   const load = () => store.myListings().then(setRows, (e) => setError(e.message));
   useEffect(() => {
@@ -85,12 +88,44 @@ export default function MyListings() {
                       Relist for 72 hours
                     </button>
                   )}
+                  {l.price_cents > 0 && l.status === 'active' && (
+                    <button
+                      type="button"
+                      className="link-btn"
+                      onClick={() => {
+                        setEditing(editing === l.id ? null : l.id);
+                        setLink(l.payment_link ?? '');
+                      }}
+                    >
+                      {l.payment_link ? 'Edit payment link' : 'Add Apple Pay / Link'}
+                    </button>
+                  )}
                   {l.status === 'active' && (
                     <button type="button" className="link-btn" onClick={act(() => store.setStatus(l.id, 'removed'))}>
                       Remove
                     </button>
                   )}
                 </span>
+                {editing === l.id && (
+                  <form
+                    className="paylink-form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      act(async () => {
+                        await store.setPaymentLink(l.id, link);
+                        setEditing(null);
+                      })();
+                    }}
+                  >
+                    <input value={link} onChange={(e) => setLink(e.target.value)} placeholder="buy.stripe.com/…" aria-label="Stripe payment link" />
+                    <button type="submit" className="primary small-btn">
+                      Save
+                    </button>
+                    <small className="hint">
+                      {PAYMENT_HELP} In Stripe, set "After payment" to redirect to this listing's link with &paid=1 on the end.
+                    </small>
+                  </form>
+                )}
               </li>
             );
           })}

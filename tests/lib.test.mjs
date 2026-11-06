@@ -5,6 +5,8 @@ import { expiresAt, isLive, timeLeftLabel, isEndingSoon, LISTING_TTL_HOURS } fro
 import { milesBetween, withinCampus } from '../lib/geo.js';
 import { CAMPUS, PICKUP_SPOTS } from '../lib/campus.js';
 import { formatPrice, parsePrice } from '../lib/format.js';
+import { parsePaymentLink } from '../lib/payments.js';
+import { summarize, validateReview } from '../lib/reviews.js';
 import { fitWithin, MAX_SIDE } from '../lib/imageCompression.js';
 
 test('.edu check accepts school emails and rejects look-alikes', () => {
@@ -45,7 +47,7 @@ test('geofence: pickup spots are inside 2 miles, Oakland airport is not', () => 
   assert.ok(Math.abs(milesBetween({ lat: 0, lng: 0 }, { lat: 0, lng: 1 }) - 69.09) < 0.1);
 });
 
-test('prices: free, whole dollars, cents, and a $500 cap', () => {
+test('prices: free, whole dollars, cents, and a $1,000 cap', () => {
   assert.equal(formatPrice(0), 'Free');
   assert.equal(formatPrice(2500), '$25');
   assert.equal(formatPrice(1250), '$12.50');
@@ -54,7 +56,8 @@ test('prices: free, whole dollars, cents, and a $500 cap', () => {
   assert.equal(parsePrice('12.5'), 1250);
   assert.equal(parsePrice('-3'), null);
   assert.equal(parsePrice('abc'), null);
-  assert.equal(parsePrice('501'), null);
+  assert.equal(parsePrice('800'), 80000);
+  assert.equal(parsePrice('1001'), null);
 });
 
 test('photos shrink to fit 1280px without upscaling', () => {
@@ -62,4 +65,22 @@ test('photos shrink to fit 1280px without upscaling', () => {
   assert.deepEqual(fitWithin(4032, 3024), { width: 1280, height: 960 });
   assert.deepEqual(fitWithin(3024, 4032), { width: 960, height: 1280 });
   assert.deepEqual(fitWithin(800, 600), { width: 800, height: 600 });
+});
+
+test('payment links: Stripe-hosted only, no look-alikes', () => {
+  assert.equal(parsePaymentLink(''), '');
+  assert.equal(parsePaymentLink('buy.stripe.com/aBc_123'), 'https://buy.stripe.com/aBc_123');
+  assert.equal(parsePaymentLink('https://buy.stripe.com/test_9AQ?x=1'), 'https://buy.stripe.com/test_9AQ');
+  assert.equal(parsePaymentLink('http://buy.stripe.com/abc'), null);
+  assert.equal(parsePaymentLink('https://buy.stripe.com.evil.io/abc'), null);
+  assert.equal(parsePaymentLink('https://evil.io/buy.stripe.com/abc'), null);
+  assert.equal(parsePaymentLink('https://user@buy.stripe.com/abc'), null);
+  assert.equal(parsePaymentLink('javascript:alert(1)'), null);
+});
+
+test('review summaries average to one decimal', () => {
+  assert.deepEqual(summarize([]), { count: 0, average: 0 });
+  assert.deepEqual(summarize([{ rating: 5 }, { rating: 4 }, { rating: 4 }]), { count: 3, average: 4.3 });
+  assert.equal(validateReview({ rating: 0 }), 'Pick 1 to 5 stars.');
+  assert.equal(validateReview({ rating: 3, body: 'ok' }), '');
 });

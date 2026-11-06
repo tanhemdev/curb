@@ -1,15 +1,21 @@
-# Curb
+<p align="center"><img src="public/icon.svg" width="88" alt="Curb logo: a couch and a box on a red-painted curb" /></p>
 
-**Perfectly good furniture shouldn't die at the dumpster.**
+<h1 align="center">Curb</h1>
+
+<p align="center"><b>Kick it to the curb. Someone nearby wants it.</b></p>
+
+<p align="center"><img src="docs/screenshots/kick.gif" width="640" alt="Animation: a sneaker kicks a box onto a red curb, then a couch, lamp and mini fridge drop in and a FREE tag pops up" /></p>
 
 A peer-to-peer marketplace for students moving out and moving in: list it, match it, hand it off a few blocks away. Every listing expires after 72 hours, because move-out moves fast.
 
-**[Try the live demo](https://tanhemdev.github.io/curb/)** (demo mode: sample listings, everything you do stays in your browser)
+**[Open Curb](https://tanhemdev.github.io/curb/)**: real listings with real photos, saved items, seller reviews, and checkout with Apple Pay or Link through Stripe.
 
 [![CI](https://github.com/tanhemdev/curb/actions/workflows/ci.yml/badge.svg)](https://github.com/tanhemdev/curb/actions/workflows/ci.yml)
 [![Deploy](https://github.com/tanhemdev/curb/actions/workflows/pages.yml/badge.svg)](https://github.com/tanhemdev/curb/actions/workflows/pages.yml)
 
-<p align="center"><img src="docs/screenshots/feed.png" width="760" alt="Curb's feed: a masonry grid of listings like a desk lamp, a road bike and an office chair, each with a price tag and time left" /></p>
+| Home | Feed | Listing |
+|---|---|---|
+| <img src="docs/screenshots/home.png" alt="Curb home page with the kick-it-to-the-curb hero" /> | <img src="docs/screenshots/feed.png" alt="Pinterest-style feed of real listings: Trader Joe's bags, three cameras, a white sofa and a mahjong table" /> | <img src="docs/screenshots/listing.png" alt="Listing page for a mahjong table with a photo gallery and a Buy now button for Apple Pay, Link or card" /> |
 
 ## Why I built this
 
@@ -23,7 +29,8 @@ In an earlier move-out pilot at Berkeley, students listed **127 items**. This re
 
 1. **List it (about 30 seconds).** Snap a photo (it's shrunk in your browser before upload), pick a pickup spot, set a price or mark it free.
 2. **Match.** Students browse a Pinterest-style feed filtered by category, price or search. Everything is within 2 miles of campus.
-3. **Hand off.** Tap "I want this" to open a chat with the seller, meet at the pickup spot, and the seller marks it handed off.
+3. **Pay and hand off.** Tap "I want this" to chat with the seller. Pay with Apple Pay, Link or a card through the seller's Stripe Payment Link, or in person at pickup. The seller marks it handed off.
+4. **Review.** Buyers who messaged a seller about an item can leave them a 1 to 5 star review, shown on every one of that seller's listings.
 
 Listings disappear after 72 hours, and sellers can relist anything that didn't go.
 
@@ -38,7 +45,11 @@ Listings disappear after 72 hours, and sellers can relist anything that didn't g
 | Campus geofence (2 miles of UC Berkeley) | `lib/geo.js`, `lib/campus.js` |
 | Buyer-seller chat, live via Supabase Realtime | `components/chat/Messages.jsx`, `lib/data/supabase.js` |
 | "Mark handed off" and My listings | `components/listing/ListingDetail.jsx`, `components/me/MyListings.jsx` |
-| Demo mode (the whole marketplace in localStorage) | `lib/data/demo.js`, `lib/data/seed.js` |
+| Payments: Stripe Payment Links (Apple Pay, Link, cards), only `buy.stripe.com` allowed | `lib/payments.js`, checked again in the database (`0004_reviews_and_payments.sql`) |
+| Seller reviews, only from people who messaged the seller | `lib/reviews.js`, `components/listing/Reviews.jsx`, RLS in `0004_reviews_and_payments.sql` |
+| Photo gallery (up to 5 photos), lightbox, save and share | `components/listing/Gallery.jsx`, `lib/saved.js` |
+| Logo and "kick it to the curb" animation | `components/Logo.jsx`, `components/home/Hero.jsx` |
+| Preview mode (the whole marketplace in localStorage) | `lib/data/demo.js`, `lib/data/seed.js` |
 
 ## Stack
 
@@ -71,19 +82,22 @@ npm run build        # static export to out/
 
 **Go live with Supabase:**
 
-1. Create a Supabase project and run the three files in `supabase/migrations/` (SQL editor or `supabase db push`).
-2. In Authentication → Hooks, turn on "Before User Created" with `public.hook_require_edu_email`.
-3. Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the anon key is meant to be public; RLS is what protects the data).
-4. `npm run build` and host `out/` anywhere.
+1. Create a Supabase project and run the four files in `supabase/migrations/` in order (SQL editor or `supabase db push`).
+2. In Authentication → Hooks, turn on "Before User Created" with `public.hook_require_edu_email`. In Authentication → URL Configuration, add `https://tanhemdev.github.io/curb/` as a redirect URL.
+3. In the GitHub repo, Settings → Secrets and variables → Actions, add `SUPABASE_URL` and `SUPABASE_ANON_KEY` (the anon key is meant to be public; RLS is what protects the data). The next deploy switches the site from preview mode to the shared database.
+4. Locally: copy `.env.example` to `.env.local` with the same two values.
+
+**Take payments:** each seller makes a free [Stripe Payment Link](https://dashboard.stripe.com/payment-links) for their item and pastes it when posting (or later, from My listings). Stripe's checkout shows Apple Pay, Link and card automatically and pays out to the seller's bank. Set the link's "After payment" redirect to the listing URL plus `&paid=1` so buyers land back on Curb.
 
 ## Tests
 
-`npm test` runs 11 tests on the parts that carry the product's promises: the .edu check (including look-alikes like `edu.com`), the exact 72-hour expiry, the geofence, prices, photo sizing, and the demo marketplace (feed filters, sign-in gate, expiry and relisting, handoffs, one thread per buyer, and that nobody can read someone else's thread). CI runs the tests and a full production build on every push.
+`npm test` runs 15 tests on the parts that carry the product's promises: the .edu check (including look-alikes like `edu.com`), Stripe-only payment links (including look-alikes like `buy.stripe.com.evil.io`), reviews (only after messaging, once per listing, never your own), the exact 72-hour expiry, the geofence, prices, photo sizing, and the demo marketplace (feed filters, sign-in gate, expiry and relisting, handoffs, one thread per buyer, and that nobody can read someone else's thread). CI runs the tests and a full production build on every push.
 
 ## Status
 
 - v1.0 (October 2026): working app, live demo, tested logic, database schema with security policies.
-- The live Supabase backend is written but needs a project and keys to run; the public demo runs in demo mode.
+- v1.1 (November 2026): real listings and photos, new logo and animated home page, photo galleries, saved items, seller reviews, Apple Pay and Link checkout through Stripe Payment Links.
+- The shared Supabase backend is written and switches on when the two repo secrets are added; until then the site runs in preview mode.
 - Next: push notifications when someone wants your item, and a second campus.
 
 ## Docs

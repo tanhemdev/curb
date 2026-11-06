@@ -8,7 +8,7 @@ export default function DemoBanner() {
   return (
     <div className="demo-banner" role="note">
       <span>
-        <b>Demo mode:</b> sample listings from made-up students. Anything you post or send stays in your browser.
+        <b>Preview mode:</b> these are real listings, but posts, messages and reviews you add are saved in this browser only until the shared database is switched on.
       </span>
       <button
         type="button"
@@ -18,7 +18,7 @@ export default function DemoBanner() {
           window.location.reload();
         }}
       >
-        Reset demo
+        Reset
       </button>
     </div>
   );
