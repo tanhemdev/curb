@@ -100,7 +100,7 @@ export default function ListingDetail() {
           <h1>{listing.title}</h1>
           <div className="price-row">
             <p className={`big-price ${listing.price_cents ? '' : 'free'}`}>{formatPrice(listing.price_cents)}</p>
-            <span className="expiry-line">{listing.status === 'handed_off' ? 'Handed off' : live ? timeLeftLabel(listing.expires_at) : 'Expired'}</span>
+            <span className="expiry-line">{listing.status === 'handed_off' ? 'Handed off' : live ? (listing.pinned ? 'Pinned' : timeLeftLabel(listing.expires_at)) : 'Expired'}</span>
           </div>
 
           <div className="seller-row">

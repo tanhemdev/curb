@@ -10,7 +10,7 @@ import { PAYMENT_HELP } from '../../lib/payments.js';
 function statusOf(l, now) {
   if (l.status === 'handed_off') return { text: 'Handed off', cls: 'ok' };
   if (l.status === 'removed') return { text: 'Removed', cls: 'muted' };
-  if (isLive(l, now)) return { text: timeLeftLabel(l.expires_at, now), cls: '' };
+  if (isLive(l, now)) return { text: l.pinned ? 'Pinned' : timeLeftLabel(l.expires_at, now), cls: '' };
   return { text: 'Expired', cls: 'warn' };
 }
 

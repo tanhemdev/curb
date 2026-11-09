@@ -107,3 +107,12 @@ test('reviews: only after messaging the seller, once per listing, never your own
   const mine = await store.createListing({ title: 'Chair', category: 'furniture', pickup_spot: 'Foothill' });
   assert.equal((await store.canReview(mine.id)).reason, 'own');
 });
+
+test('showcase listings come back on a fresh clock for returning visitors', async () => {
+  const m = memory();
+  let t = Date.parse('2026-05-10T12:00:00Z');
+  createDemoStore({ storage: m, now: () => t, autoReplyMs: -1 });
+  t += 30 * 24 * 3600e3; // a month later
+  const again = createDemoStore({ storage: m, now: () => t, autoReplyMs: -1 });
+  assert.equal((await again.listListings()).length, 4);
+});

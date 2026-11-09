@@ -82,10 +82,11 @@ npm run build        # static export to out/
 
 **Go live with Supabase:**
 
-1. Create a Supabase project and run the four files in `supabase/migrations/` in order (SQL editor or `supabase db push`).
+1. Create a Supabase project and run the five files in `supabase/migrations/` in order (SQL editor or `supabase db push`).
 2. In Authentication → Hooks, turn on "Before User Created" with `public.hook_require_edu_email`. In Authentication → URL Configuration, add `https://tanhemdev.github.io/curb/` as a redirect URL.
-3. In the GitHub repo, Settings → Secrets and variables → Actions, add `SUPABASE_URL` and `SUPABASE_ANON_KEY` (the anon key is meant to be public; RLS is what protects the data). The next deploy switches the site from preview mode to the shared database.
-4. Locally: copy `.env.example` to `.env.local` with the same two values.
+3. Put the project URL and anon key in `.env.production` (both are public by design; RLS is what protects the data). The next deploy switches the site from preview mode to the shared database.
+4. Supabase's built-in email only reaches your own team, so add custom SMTP (Authentication → Emails → SMTP Settings) so classmates get their sign-in links.
+5. Optional: pin showcase listings so they never expire with `supabase/seed_showcase.sql`.
 
 **Take payments:** each seller makes a free [Stripe Payment Link](https://dashboard.stripe.com/payment-links) for their item and pastes it when posting (or later, from My listings). Stripe's checkout shows Apple Pay, Link and card automatically and pays out to the seller's bank. Set the link's "After payment" redirect to the listing URL plus `&paid=1` so buyers land back on Curb.
 
@@ -97,7 +98,7 @@ npm run build        # static export to out/
 
 - v1.0 (October 2026): working app, live demo, tested logic, database schema with security policies.
 - v1.1 (November 2026): real listings and photos, new logo and animated home page, photo galleries, saved items, seller reviews, Apple Pay and Link checkout through Stripe Payment Links.
-- The shared Supabase backend is written and switches on when the two repo secrets are added; until then the site runs in preview mode.
+- The live site runs on a shared Supabase database: posts, chats and reviews are visible to everyone. Showcase listings are pinned so the feed is never empty.
 - Next: push notifications when someone wants your item, and a second campus.
 
 ## Docs
