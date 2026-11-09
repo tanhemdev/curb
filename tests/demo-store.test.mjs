@@ -116,3 +116,14 @@ test('showcase listings come back on a fresh clock for returning visitors', asyn
   const again = createDemoStore({ storage: m, now: () => t, autoReplyMs: -1 });
   assert.equal((await again.listListings()).length, 4);
 });
+
+test('venmo can be set when posting and changed later', async () => {
+  const { store } = makeStore();
+  await store.signIn('tanya@berkeley.edu', 'Tanya');
+  await assert.rejects(store.createListing({ title: 'Desk', category: 'furniture', pickup_spot: 'Foothill', price_cents: 2000, venmo: 'x' }), /Venmo/);
+  const desk = await store.createListing({ title: 'Desk', category: 'furniture', pickup_spot: 'Foothill', price_cents: 2000, venmo: '@tanya_h1' });
+  assert.equal(desk.venmo, 'tanya_h1');
+  const updated = await store.setPayment(desk.id, { venmo: '', payment_link: 'buy.stripe.com/test_1234' });
+  assert.equal(updated.venmo, null);
+  assert.equal(updated.payment_link, 'https://buy.stripe.com/test_1234');
+});

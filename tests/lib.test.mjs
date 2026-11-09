@@ -5,7 +5,7 @@ import { expiresAt, isLive, timeLeftLabel, isEndingSoon, LISTING_TTL_HOURS } fro
 import { milesBetween, withinCampus } from '../lib/geo.js';
 import { CAMPUS, PICKUP_SPOTS } from '../lib/campus.js';
 import { formatPrice, parsePrice } from '../lib/format.js';
-import { parsePaymentLink } from '../lib/payments.js';
+import { parsePaymentLink, parseVenmo, venmoPayUrl } from '../lib/payments.js';
 import { summarize, validateReview } from '../lib/reviews.js';
 import { fitWithin, MAX_SIDE } from '../lib/imageCompression.js';
 
@@ -83,4 +83,17 @@ test('review summaries average to one decimal', () => {
   assert.deepEqual(summarize([{ rating: 5 }, { rating: 4 }, { rating: 4 }]), { count: 3, average: 4.3 });
   assert.equal(validateReview({ rating: 0 }), 'Pick 1 to 5 stars.');
   assert.equal(validateReview({ rating: 3, body: 'ok' }), '');
+});
+
+test('venmo usernames and prefilled pay links', () => {
+  assert.equal(parseVenmo(''), '');
+  assert.equal(parseVenmo('@Tanya-Hemdev'), 'Tanya-Hemdev');
+  assert.equal(parseVenmo('https://venmo.com/u/tanya_h1'), 'tanya_h1');
+  assert.equal(parseVenmo('ab'), null);
+  assert.equal(parseVenmo('bad name!'), null);
+  const url = new URL(venmoPayUrl('tanya_h1', 9500, '3 cameras'));
+  assert.equal(url.hostname, 'venmo.com');
+  assert.equal(url.searchParams.get('recipients'), 'tanya_h1');
+  assert.equal(url.searchParams.get('amount'), '95.00');
+  assert.equal(url.searchParams.get('note'), 'Curb: 3 cameras');
 });

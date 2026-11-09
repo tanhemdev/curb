@@ -41,6 +41,7 @@ export default function ListingCard({ listing, now, saved, onToggleSave, index =
         <h3>{listing.title}</h3>
         <p className="pin-meta">
           {listing.pickup_spot}
+          {listing.venmo && <span className="pay-badge venmo">Venmo</span>}
           {listing.payment_link && <span className="pay-badge">Apple Pay · Link</span>}
         </p>
       </div>

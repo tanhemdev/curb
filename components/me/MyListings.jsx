@@ -20,6 +20,7 @@ export default function MyListings() {
   const [error, setError] = useState('');
   const [editing, setEditing] = useState(null);
   const [link, setLink] = useState('');
+  const [venmo, setVenmo] = useState('');
 
   const load = () => store.myListings().then(setRows, (e) => setError(e.message));
   useEffect(() => {
@@ -95,9 +96,10 @@ export default function MyListings() {
                       onClick={() => {
                         setEditing(editing === l.id ? null : l.id);
                         setLink(l.payment_link ?? '');
+                        setVenmo(l.venmo ?? '');
                       }}
                     >
-                      {l.payment_link ? 'Edit payment link' : 'Add Apple Pay / Link'}
+                      {l.payment_link || l.venmo ? 'Edit how buyers pay' : 'Add Venmo or Apple Pay'}
                     </button>
                   )}
                   {l.status === 'active' && (
@@ -112,17 +114,18 @@ export default function MyListings() {
                     onSubmit={(e) => {
                       e.preventDefault();
                       act(async () => {
-                        await store.setPaymentLink(l.id, link);
+                        await store.setPayment(l.id, { payment_link: link, venmo });
                         setEditing(null);
                       })();
                     }}
                   >
-                    <input value={link} onChange={(e) => setLink(e.target.value)} placeholder="buy.stripe.com/…" aria-label="Stripe payment link" />
+                    <input value={venmo} onChange={(e) => setVenmo(e.target.value)} placeholder="Venmo username (free)" aria-label="Venmo username" />
+                    <input value={link} onChange={(e) => setLink(e.target.value)} placeholder="buy.stripe.com/… (optional)" aria-label="Stripe payment link" />
                     <button type="submit" className="primary small-btn">
                       Save
                     </button>
                     <small className="hint">
-                      {PAYMENT_HELP} In Stripe, set "After payment" to redirect to this listing's link with &paid=1 on the end.
+                      Venmo is free between friends. {PAYMENT_HELP} Stripe charges about 2.9% + 30¢ per sale.
                     </small>
                   </form>
                 )}

@@ -9,7 +9,7 @@ import { CAMPUS, CATEGORIES, PICKUP_SPOTS } from '../../lib/campus.js';
 import { parsePrice } from '../../lib/format.js';
 import { withinCampus, milesBetween } from '../../lib/geo.js';
 import { LISTING_TTL_HOURS } from '../../lib/expiry.js';
-import { parsePaymentLink, PAYMENT_HELP } from '../../lib/payments.js';
+import { parsePaymentLink, parseVenmo, PAYMENT_HELP } from '../../lib/payments.js';
 import { MAX_PRICE_CENTS } from '../../lib/format.js';
 
 export default function CreateListing() {
@@ -23,6 +23,7 @@ export default function CreateListing() {
   const [description, setDescription] = useState('');
   const [photos, setPhotos] = useState([]);
   const [payLink, setPayLink] = useState('');
+  const [venmo, setVenmo] = useState('');
   const [geo, setGeo] = useState(null);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -65,13 +66,15 @@ export default function CreateListing() {
     if (!title.trim()) return setError('Give your listing a title.');
     if (cents === null) return setError(`Enter a price like 20 or 12.50 (up to $${MAX_PRICE_CENTS / 100}), or mark it free.`);
     const link = cents ? parsePaymentLink(payLink) : '';
+    const venmoHandle = cents ? parseVenmo(venmo) : '';
+    if (venmoHandle === null) return setError('That Venmo username doesn\'t look right: use 5 to 30 letters, numbers, - or _.');
     if (link === null) return setError('That payment link isn\'t a Stripe link. It should start with buy.stripe.com/.');
     setSaving(true);
     try {
       const urls = [];
       for (const p of photos) urls.push(await store.uploadPhoto(p));
       const [photo_url = null, ...rest] = urls;
-      const listing = await store.createListing({ title, description, category, price_cents: cents, pickup_spot: spot, photo_url, photos: rest, payment_link: link });
+      const listing = await store.createListing({ title, description, category, price_cents: cents, pickup_spot: spot, photo_url, photos: rest, payment_link: link, venmo: venmoHandle });
       router.push(`/listing?id=${encodeURIComponent(listing.id)}&posted=1`);
     } catch (err) {
       setError(err.message);
@@ -112,7 +115,14 @@ export default function CreateListing() {
         </fieldset>
         {!free && (
           <label>
-            Stripe payment link (optional)
+            Venmo username (free, recommended)
+            <input value={venmo} onChange={(e) => setVenmo(e.target.value)} placeholder="@your-venmo" autoComplete="off" />
+            <small className="hint">Buyers tap "Pay with Venmo" and the amount and item are filled in for them. No fees when they pay from a bank or debit card.</small>
+          </label>
+        )}
+        {!free && (
+          <label>
+            Stripe payment link (optional, about 2.9% + 30¢ per sale)
             <input value={payLink} onChange={(e) => setPayLink(e.target.value)} placeholder="buy.stripe.com/…" inputMode="url" autoComplete="off" />
             <small className="hint">
               {PAYMENT_HELP} Make one for free at dashboard.stripe.com → Payment Links. Leave it empty to take payment at pickup.

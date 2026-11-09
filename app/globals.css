@@ -305,3 +305,6 @@ button.secondary:hover { background: var(--surface-2); }
 .paylink-form input { flex: 1; min-width: 200px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border); }
 .paylink-form .hint { flex-basis: 100%; }
 .small-btn { padding: 9px 16px; }
+.pay-btn.venmo { background: #008cff; }
+.pay-btn.venmo:hover { background: #0074d4; }
+.pay-badge.venmo { background: #008cff; }

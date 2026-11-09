@@ -11,6 +11,7 @@ import { categoryLabel } from '../../lib/campus.js';
 import { formatPrice, timeAgo, firstName } from '../../lib/format.js';
 import { isLive, timeLeftLabel } from '../../lib/expiry.js';
 import { getSaved, toggleSaved } from '../../lib/saved.js';
+import { venmoPayUrl } from '../../lib/payments.js';
 
 export default function ListingDetail() {
   const params = useSearchParams();
@@ -142,19 +143,30 @@ export default function ListingDetail() {
             </div>
           ) : live ? (
             <div className="buy-box">
+              {listing.venmo && listing.price_cents > 0 && (
+                <a className="pay-btn venmo" href={venmoPayUrl(listing.venmo, listing.price_cents, listing.title)} target="_blank" rel="noopener noreferrer">
+                  <span>Pay with Venmo · {formatPrice(listing.price_cents)}</span>
+                  <small>to @{listing.venmo} · no fees from bank or debit</small>
+                </a>
+              )}
               {listing.payment_link && listing.price_cents > 0 && (
                 <a className="pay-btn" href={listing.payment_link} target="_blank" rel="noopener noreferrer">
                   <span>Buy now · {formatPrice(listing.price_cents)}</span>
                   <small>Apple Pay · Link · Card</small>
                 </a>
               )}
-              <button type="button" className={listing.payment_link && listing.price_cents > 0 ? 'secondary' : 'primary'} onClick={want} disabled={busy}>
+              <button type="button" className={(listing.payment_link || listing.venmo) && listing.price_cents > 0 ? 'secondary' : 'primary'} onClick={want} disabled={busy}>
                 {user ? (listing.price_cents ? `Message ${seller}` : 'I want this') : 'Sign in to ask for it'}
               </button>
               <div className="pay-note">
                 {listing.price_cents === 0 ? (
                   <p>
                     <b>It's free.</b> Message {seller}, agree on a time, and pick it up at {listing.pickup_spot}.
+                  </p>
+                ) : listing.venmo ? (
+                  <p>
+                    <b>Pay {seller} directly.</b> Venmo opens with the amount and item filled in. Message {seller} first to confirm it's still yours, then check the
+                    item at pickup. Venmo is free from a bank or debit card.
                   </p>
                 ) : listing.payment_link ? (
                   <p>
